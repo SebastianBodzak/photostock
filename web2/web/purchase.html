@@ -1,0 +1,50 @@
+<html>
+<head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script type="text/javascript">
+        function create() {
+            var client  = $("#clientNr").val();
+
+            $.get('create', {
+                clientNr: client
+            }, function(responseText) {
+                $('#reservationNr').val(responseText);
+            });
+
+        }
+
+
+        function reserve() {
+            var prod  = $("#prodNr").val();
+            var res = $("#reservationNr").val();
+
+            $.get('purchase', {
+                prodNr : prod,
+                resNr: res
+            }, function(responseText) {
+                $('#total').text(responseText);
+            });
+
+        }
+
+    </script>
+
+</head>
+
+<body>
+<form  method="get">
+    Nr klienta: <input type="text" id="clientNr"/>
+    <input type="button" value="Stworz rezerwacje" onclick="create()"/>
+    Nr rezerwacji: <input type="text" id="reservationNr" disabled/>
+
+    <hr/>
+
+    Nr produktu: <input type="text" id="prodNr"/>
+    <input type="button" value="Rzerwuj" onclick="reserve()"/>
+
+    <hr/>
+    calkowity koszt oferty: <span id="total">0</span>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,3 @@
+number,owner,items,close
+nr1,owner1,nr1|nr2|nr3,true
+nr2,owner2,nr1|nr2,false

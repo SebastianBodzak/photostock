@@ -1,0 +1,5 @@
+number,title,price,currency,available,tags,resolution,type
+nr1,title,10000,PLN,true,tag1 tag2 tag3 tag4,,Picture
+nr2,title2,20000,USD,true,,,Picture
+nr3,title3,30000,PLN,false,,,Picture
+badFormatNr,title4

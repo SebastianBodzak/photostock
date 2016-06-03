@@ -1,0 +1,2 @@
+number,name,address,status,debt,amount,creditLimit,currency,company,payingStrategy
+7e09165c-61fe-4574-9df6-4f7b9f487758,Janusz,Poland,STANDARD,0,999987920,0,PLN,null,StandardPayingStrategy

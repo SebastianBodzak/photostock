@@ -1,0 +1,3 @@
+number,name,clientsAndClientsRole,items,closed
+nr1,lbxName,nr1 ADMIN|nr2 EDITOR,nr1|nr2|nr3,false
+nr2,differentLbxName,nr1 ADMIN|nr2 GUEST,nr1|nr2,true

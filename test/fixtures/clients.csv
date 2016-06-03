@@ -1,0 +1,3 @@
+number,name,address,status,debt,amount,currency,creditLimit,company,payingStrategy
+nr1,JanuszKowalski,Lublin,STANDARD,0,0,0,PLN,somecompany,StandardPayingStrategy
+nr2,Cleopatra,Egypt,VIP,0,5000,3050,USD,catnip,DebtorPayingStrategy
