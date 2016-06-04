@@ -53,7 +53,7 @@ public class JDBCProductRepositoryTest {
     @Test
     public void shouldSaveProduct() {
         //given
-        Product picture = new Picture("nr2", "title", new Money(205, Money.CurrencyValues.PLN), true, null); //todo sprawdzić money
+        Product picture = new Picture("nr2", "title", new Money(205, Money.CurrencyValues.PLN), true, null);
 
         //when
         productRepository.save(picture);
@@ -62,6 +62,21 @@ public class JDBCProductRepositoryTest {
         Product saved = productRepository.load("nr2");
         assertEquals("nr2", saved.getNumber());
         assertEquals(new Money(205), saved.getPrice());
+
+    }
+
+    @Test
+    public void shouldSaveProductWithTags() {
+        //given
+        Product picture = new Picture("nr2", "title", new Money(205, Money.CurrencyValues.PLN), true, Arrays.asList("tag1", "tag2", "tag3"));
+
+        //when
+        productRepository.save(picture);
+
+        //then
+        Product saved = productRepository.load("nr2");
+        assertEquals("nr2", saved.getNumber());
+        assertEquals(Arrays.asList("tag1", "tag2", "tag3"), saved.getTags());
 
     }
 
