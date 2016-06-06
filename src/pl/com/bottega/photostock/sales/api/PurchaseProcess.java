@@ -1,8 +1,11 @@
 package pl.com.bottega.photostock.sales.api;
 
+import com.google.common.base.Preconditions;
 import pl.com.bottega.photostock.sales.model.*;
 import pl.com.bottega.photostock.sales.model.exceptions.DataAccessException;
 import pl.com.bottega.photostock.sales.model.exceptions.DataDoesNotExistsException;
+
+import static com.google.common.base.Preconditions.*;
 
 /**
  * Created by Dell on 2016-04-23.
@@ -44,8 +47,7 @@ public class PurchaseProcess {
       public Offer calculateOffer(String clientNr) throws DataDoesNotExistsException {
           Client client = clientRepository.load(clientNr);
           Reservation reservation = reservationRepository.findOpenerPer(client);
-          if (reservation == null)
-              throw new IllegalStateException("client does not have opened reservation");
+          checkNotNull(reservation, "client does not have opened reservation");
           return reservation.generateOffer();
       }
 
@@ -59,9 +61,7 @@ public class PurchaseProcess {
     public void confirm(String clientNr) throws IllegalStateException {
         Client client = clientRepository.load(clientNr);
         Reservation reservation = reservationRepository.findOpenerPer(client);
-
-        if (reservation == null)
-            throw new IllegalStateException ("Client does not have reservation");
+        checkNotNull(reservation, "Client does not have reservation");
 
         confirm(client, reservation);
     }

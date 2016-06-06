@@ -1,5 +1,6 @@
 package pl.com.bottega.photostock.sales.model;
 
+import com.google.common.base.Objects;
 import pl.com.bottega.photostock.sales.model.client.strategies.PayingStrategy;
 
 import java.util.Collections;
@@ -170,24 +171,47 @@ public class Client {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Client client = (Client) o;
-
-        if (name != null ? !name.equals(client.name) : client.name != null) return false;
-        if (address != null ? !address.equals(client.address) : client.address != null) return false;
-        if (status != client.status) return false;
-        return number != null ? number.equals(client.number) : client.number == null;
-
+        return active == client.active &&
+                Objects.equal(name, client.name) &&
+                Objects.equal(address, client.address) &&
+                Objects.equal(debt, client.debt) &&
+                Objects.equal(amount, client.amount) &&
+                Objects.equal(creditLimit, client.creditLimit) &&
+                status == client.status &&
+                Objects.equal(number, client.number) &&
+                Objects.equal(company, client.company) &&
+                Objects.equal(payingStrategy, client.payingStrategy);
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (address != null ? address.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (number != null ? number.hashCode() : 0);
-        return result;
+        return Objects.hashCode(name, address, debt, amount, creditLimit, active, status, number, company, payingStrategy);
     }
+
+
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//
+//        Client client = (Client) o;
+//
+//        if (name != null ? !name.equals(client.name) : client.name != null) return false;
+//        if (address != null ? !address.equals(client.address) : client.address != null) return false;
+//        if (status != client.status) return false;
+//        return number != null ? number.equals(client.number) : client.number == null;
+//
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        int result = name != null ? name.hashCode() : 0;
+//        result = 31 * result + (address != null ? address.hashCode() : 0);
+//        result = 31 * result + (status != null ? status.hashCode() : 0);
+//        result = 31 * result + (number != null ? number.hashCode() : 0);
+//        return result;
+//    }
 
     //number,name,address,status,debt,amount,creditLimit,currency,company
     public String[] export() {

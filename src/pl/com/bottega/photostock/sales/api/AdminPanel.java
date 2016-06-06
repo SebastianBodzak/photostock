@@ -1,5 +1,6 @@
 package pl.com.bottega.photostock.sales.api;
 
+import com.google.common.base.Preconditions;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeClientRepository;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeProductRepository;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FakePurchaseRepository;
@@ -46,25 +47,30 @@ public class AdminPanel {
         return product.getNumber();
     }
 
+//    public void promoteClientToVip(String clientNr) throws IllegalStateException {
+//        Client client = clientRepository.load(clientNr);
+//        if (client.getStatus() != ClientStatus.VIP) {
+//            ClientFactory.promoteToVip(clientNr);
+//            client = clientRepository.load(clientNr);
+//            clientRepository.save(client);
+//        } else {
+//            throw new IllegalStateException("Client is already VIP");
+//        }
+//    }
+
     public void promoteClientToVip(String clientNr) throws IllegalStateException {
         Client client = clientRepository.load(clientNr);
-        if (client.getStatus() != ClientStatus.VIP) {
+        Preconditions.checkState(client.getStatus() != ClientStatus.VIP, "%s is already VIP", clientNr);
             ClientFactory.promoteToVip(clientNr);
             client = clientRepository.load(clientNr);
             clientRepository.save(client);
-        } else {
-            throw new IllegalStateException("Client is already VIP");
-        }
     }
 
     public void changeCreditLimit(String clientNr, Money newCreditLimit) throws IllegalStateException {
         Client client = clientRepository.load((clientNr));
-        if (client.getStatus() == ClientStatus.VIP) {
+        Preconditions.checkState(client.getStatus() == ClientStatus.VIP, "%s is not a VIP", clientNr);
             client.modifyCreditLimit(newCreditLimit);
             clientRepository.save(client);
-        } else {
-            throw new IllegalStateException("Client is not a Vip!");
-        }
     }
 
     public void changeAvailability(String productNr, boolean available) {

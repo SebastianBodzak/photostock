@@ -1,6 +1,10 @@
 package pl.com.bottega.photostock.sales.model;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import pl.com.bottega.photostock.sales.model.exceptions.ProductNotAvailableException;
+import pl.com.bottega.photostock.sales.model.products.Picture;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,16 +57,30 @@ public class Reservation {
     }
 
     public Offer generateOffer() {
-        List<Product> offerItems = new LinkedList<>();
-        for (Product product : items) {
-            if (product.isAvailable())
-                offerItems.add(product);
-        }
+        List<Product> offerItems = Lists.newLinkedList(Iterables.filter(items, new Predicate<Product>() {
+            @Override
+            public boolean apply(Product product) {
+                return product.isAvailable();
+            }
+        }));
+
 
         Comparator<Product> comparator = new PriceAndNameProductComparator();
         Collections.sort(offerItems, comparator);
         return new Offer(owner, offerItems);
     }
+
+//    public Offer generateOffer() {
+//        List<Product> offerItems = new LinkedList<>();
+//        for (Product product : items) {
+//            if (product.isAvailable())
+//                offerItems.add(product);
+//        }
+//
+//        Comparator<Product> comparator = new PriceAndNameProductComparator();
+//        Collections.sort(offerItems, comparator);
+//        return new Offer(owner, offerItems);
+//    }
 
     public int getItemsCount() {
         return items.size();

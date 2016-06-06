@@ -28,7 +28,9 @@ public class JDBCProductRepositoryTest {
     public void setUp() throws Exception {
         //given
         Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:photostock", "SA", "");
+        dropTables(c);
         createProductsTable(c);
+        createTagsTable(c);
         insertTestProduct(c);
         c.close();
         //when
@@ -80,9 +82,36 @@ public class JDBCProductRepositoryTest {
 
     }
 
+    @Test
+    public void shouldUpdateProduct() {
+
+    }
+
+    @Test
+    public void shouldUpdateProductWithTags() {
+        //given
+        Product picture = new Picture("nr2", "title", new Money(205, Money.CurrencyValues.PLN), true, Arrays.asList("tag1", "tag2", "tag3"));
+        Product pictureToUpdate = new Picture("nr2", "title", new Money(205, Money.CurrencyValues.PLN), true, Arrays.asList("tag1", "tag3"));
+
+        //when
+        productRepository.save(picture);
+        productRepository.save(pictureToUpdate);
+
+        //then
+        Product saved = productRepository.load("nr2");
+        assertEquals("nr2", saved.getNumber());
+        assertEquals(Arrays.asList("tag1", "tag3"), saved.getTags());
+
+    }
+
+    private void dropTables(Connection c) throws SQLException {
+        c.createStatement().executeUpdate("DROP TABLE  ProductsTags IF EXISTS");
+        c.createStatement().executeUpdate("DROP TABLE Tags IF EXISTS");
+        c.createStatement().executeUpdate("DROP TABLE Products IF EXISTS");
+    }
+
     //number,title,price,currency,available,tags,resolution,type
     private void createProductsTable(Connection c) throws SQLException {
-        c.createStatement().executeUpdate("DROP TABLE Products IF EXISTS");
         c.createStatement().executeUpdate("CREATE TABLE Products (\n" +
                 "  id INTEGER IDENTITY PRIMARY KEY,\n" +
                 "  number VARCHAR(36) NOT NULL,\n" +
@@ -93,6 +122,18 @@ public class JDBCProductRepositoryTest {
                 "  priceCurrency CHAR(3) DEFAULT 'PLN' NOT NULL,\n" +
                 "  length BIGINT\n" +
                 ");");
+    }
+
+    private void createTagsTable(Connection c) throws SQLException {
+        c.createStatement().executeUpdate("CREATE TABLE Tags (\n" +
+                "  id INTEGER IDENTITY PRIMARY KEY,\n" +
+                "  name VARCHAR(255) NOT NULL\n" +
+                ");");
+        c.createStatement().executeUpdate("CREATE TABLE ProductsTags (\n" +
+                "  productId INTEGER FOREIGN KEY REFERENCES Products(id),\n" +
+                "  tagId INTEGER FOREIGN KEY REFERENCES Tags(id),\n" +
+                "  PRIMARY KEY (productId, tagId)\n" +
+                ");\n");
     }
 
     private void insertTestProduct(Connection c) throws Exception {

@@ -1,5 +1,7 @@
 package pl.com.bottega.photostock.sales.model;
 
+import com.google.common.base.*;
+import com.google.common.base.Objects;
 import pl.com.bottega.photostock.sales.model.exceptions.ProductNotAvailableException;
 import pl.com.bottega.photostock.sales.model.products.Picture;
 
@@ -188,26 +190,17 @@ public class LightBox {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         LightBox lightBox = (LightBox) o;
-
-        if (closed != lightBox.closed) return false;
-        if (number != null ? !number.equals(lightBox.number) : lightBox.number != null) return false;
-        if (name != null ? !name.equals(lightBox.name) : lightBox.name != null) return false;
-        if (permissions != null ? !permissions.equals(lightBox.permissions) : lightBox.permissions != null)
-            return false;
-        return items != null ? items.equals(lightBox.items) : lightBox.items == null;
-
+        return closed == lightBox.closed &&
+                com.google.common.base.Objects.equal(number, lightBox.number) &&
+                Objects.equal(name, lightBox.name) &&
+                Objects.equal(permissions, lightBox.permissions) &&
+                Objects.equal(items, lightBox.items);
     }
 
     @Override
     public int hashCode() {
-        int result = number != null ? number.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (permissions != null ? permissions.hashCode() : 0);
-        result = 31 * result + (items != null ? items.hashCode() : 0);
-        result = 31 * result + (closed ? 1 : 0);
-        return result;
+        return Objects.hashCode(number, name, permissions, items, closed);
     }
 
     //number,name,clientsAndClientsRole,items,closed

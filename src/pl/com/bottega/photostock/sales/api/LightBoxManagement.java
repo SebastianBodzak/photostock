@@ -1,12 +1,17 @@
 package pl.com.bottega.photostock.sales.api;
 
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeClientRepository;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeLightBoxRepository;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeProductRepository;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeReservationRepository;
 import pl.com.bottega.photostock.sales.model.*;
+import pl.com.bottega.photostock.sales.model.products.Picture;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -121,7 +126,14 @@ public class LightBoxManagement {
 
 //    public void addToReservation(String lightboxId, String pictureId){
 //        LightBox lightBox = lightBoxRepository.load(lightboxId);
-//        String clientNr = lightBox.getOwner().getNumber();
+//        String clientNr = lightBox.getOwners().getNumber();
+//
+//        Collection<Picture> products = Collections2.filter(lightBox.getProducts(), new Predicate<Picture>() {
+//            @Override
+//            public boolean apply(Picture picture) {
+//                return false;
+//            }
+//        });
 //
 //        for (Picture picture : lightBox.getItems()){
 //            if (picture.getNumber().equals(pictureId)) {

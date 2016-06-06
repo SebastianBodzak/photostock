@@ -1,5 +1,8 @@
 package pl.com.bottega.fun;
 
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -27,6 +30,26 @@ public class NonEmptyList<T> implements FunList<T> {
 
     @Override
     public FunList<T> remove(T el) {
+        return null;
+    }
+
+    @Override
+    public FunList<T> filter(Predicate<T> predicate) {
+        return null;
+    }
+
+    @Override
+    public void each(Consumer<T> consumer) {
+
+    }
+
+    @Override
+    public FunList<T> concat(FunList<T> other) {
+        return null;
+    }
+
+    @Override
+    public FunList<T> sublist(int startIndex, int endIndex) {
         return null;
     }
 
@@ -67,5 +90,24 @@ public class NonEmptyList<T> implements FunList<T> {
     @Override
     public boolean empty() {
         return false;
+    }
+
+    @Override
+    public <R> FunList<R> map(Function<T, R> mapper) {
+        return new NonEmptyList<>(mapper.apply(head), tail.map(mapper));
+    }
+
+    @Override
+    public <R> R reduce(R initial, BiFunction<R, T, R> reductor) {
+        R partialResult = reductor.apply(initial, head);
+        return tail.reduce(partialResult, reductor);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof NonEmptyList))
+            return false;
+        NonEmptyList otherList = (NonEmptyList) other;
+        return head.equals(otherList.head) && tail.equals(otherList.tail);
     }
 }

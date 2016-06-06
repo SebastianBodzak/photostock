@@ -4,6 +4,25 @@
       <root url="jar://$PROJECT_DIR$/lib/hsqldb.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/src" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/src-super/com/google/common/base/super" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/src-super/com/google/common/cache/super" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/src-super/com/google/common/collect/super" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/src-super/com/google/common/escape/super" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/src-super/com/google/common/util/concurrent/super" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/src-super/java/lang/super" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/src-super/java/util/super" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/test" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/test-super/com/google/common/collect/testing/super" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/test-super/com/google/common/math/super" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/test-super/com/google/common/testing/super" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-gwt/test-super/com/google/common/util/concurrent/super" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-testlib/src" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-testlib/test" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-tests/benchmark" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava-tests/test" />
+      <root url="file://$PROJECT_DIR$/lib/guava-master/guava/src" />
+    </SOURCES>
   </library>
 </component>
