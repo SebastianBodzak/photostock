@@ -1,5 +1,6 @@
 package pl.com.bottega.photostock.sales.api.infrastructure.repositories;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FileClientRepository;
@@ -24,6 +25,11 @@ public class FileClientRepositoryTest {
     public static final String PATH_TEMP_FILE = "tmp/clients.csv";
 
     private ClientRepository clientRepository = new FileClientRepository(PATH_TEMP_FILE);
+
+    @After
+    public void shouldRemoveClientFile() {
+        deleteClientFile();
+    }
 
     @Test
     public void shouldLoadClient() {
@@ -60,8 +66,6 @@ public class FileClientRepositoryTest {
     @Test
     public void shouldWriteProduct() {
         //given
-        deleteClientFile();
-
         //when
         clientRepository.save(STANDARD_CLIENT);
         clientRepository.save(VIP_CLIENT);
@@ -80,8 +84,6 @@ public class FileClientRepositoryTest {
     @Test
     public void shouldOverwriteProduct() {
         //given
-        deleteClientFile();
-
         //when
         Client client = ClientFactory.create("Rain", "Earth");
 

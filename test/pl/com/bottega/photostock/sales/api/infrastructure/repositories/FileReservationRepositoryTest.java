@@ -1,7 +1,12 @@
 package pl.com.bottega.photostock.sales.api.infrastructure.repositories;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeClientRepository;
+import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeLightBoxRepository;
+import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeProductRepository;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FileReservationRepository;
 import pl.com.bottega.photostock.sales.model.*;
 import pl.com.bottega.photostock.sales.model.exceptions.DataAccessException;
@@ -19,23 +24,45 @@ import static org.junit.Assert.assertNotNull;
  * Created by Dell on 2016-05-26.
  */
 public class FileReservationRepositoryTest {
-    private static final Client STANDARD_CLIENT = ClientFactory.create("Janusz", "Poland");
-    private static final Client VIP_CLIENT = ClientFactory.create("Cleopatra", "Egypt", ClientStatus.VIP, "Rule z.o.o.");
-    private static final String PATH_TEMP_LIGHTBOXES_FILE = "tmp/lightboxes.csv";
-    private static final String PATH_TEMP_CLIENT_FILE = "tmp/clients.csv";
-    private static final String PATH_TEMP_PRODUCT_FILE= "tmp/products.csv";
-    private static final String PATH_TEMP_RESERVATION_FILE= "tmp/reservations.csv";
-//    private static final LightBox AVAILABLE_LIGHTBOX = new LightBox(STANDARD_CLIENT, "SomeLbx");
 
-    private ReservationRepository reservationRepository = RepoFactory.createReservationRepository();
-    private LightBoxRepository lightBoxRepository = RepoFactory.createLightBoxRepository();
-    private ClientRepository clientRepository = RepoFactory.createClientRepository();
-    private ProductRepository productRepository = RepoFactory.createProductRepository();
+    private static final String PATH_TEMP_FILE= "tmp/reservations.csv";
+
+    private ClientRepository clientRepository = new FakeClientRepository();
+    private ProductRepository productRepository = new FakeProductRepository();
+    private LightBoxRepository lightBoxRepository = new FakeLightBoxRepository();
+    private ReservationRepository reservationRepository = new FileReservationRepository(PATH_TEMP_FILE, clientRepository, productRepository);
+
+    private static final Client STANDARD_CLIENT = ClientFactory.create("owner1", "Janusz", ClientStatus.STANDARD);
+    private static final Client VIP_CLIENT = ClientFactory.create("owner2", "Janina", ClientStatus.VIP);
+    private static final Product STANDARD_PRODUCT = new Picture("nr1", "title1", new Money(10), true, null);
+    private static final Product STANDARD_PRODUCT_2 = new Picture("nr2", "title2", new Money(8), true, null);
+    private static final Product NOT_AVAILABLE_PRODUCT = new Picture("nr3", "title3", new Money(20), false, null);
+
+    @Before
+    public void shouldAddClientsAndProducts() {
+        clientRepository.save(STANDARD_CLIENT);
+        clientRepository.save(VIP_CLIENT);
+        productRepository.save(STANDARD_PRODUCT);
+        productRepository.save(STANDARD_PRODUCT_2);
+        productRepository.save(NOT_AVAILABLE_PRODUCT);
+    }
+
+    @After
+    public void shouldCleanRepositories() {
+        clientRepository.remove(STANDARD_CLIENT.getNumber());
+        clientRepository.remove(VIP_CLIENT.getNumber());
+        productRepository.remove(STANDARD_PRODUCT.getNumber());
+        productRepository.remove(STANDARD_PRODUCT_2.getNumber());
+        productRepository.remove(NOT_AVAILABLE_PRODUCT.getNumber());
+        deleteReservationsFile();
+    }
+
+//    private static final LightBox AVAILABLE_LIGHTBOX = new LightBox(STANDARD_CLIENT, "SomeLbx");
 
     @Test
     public void shouldLoadReservation() {
         //given
-        ReservationRepository reservationRepository = new FileReservationRepository(getClass().getResource("/fixtures/reservations.csv").getPath());
+        ReservationRepository reservationRepository = new FileReservationRepository(getClass().getResource("/fixtures/reservations.csv").getPath(), clientRepository, productRepository);
         //when
         Reservation reservation = reservationRepository.load("nr2");
         //then
@@ -47,7 +74,7 @@ public class FileReservationRepositoryTest {
     @Test
     public void shouldThrowFileAccessExceptionWhenFileNotFound() {
         //given
-        ReservationRepository reservationRepository = new FileReservationRepository("fake path");
+        ReservationRepository reservationRepository = new FileReservationRepository("fake path", clientRepository, productRepository);
         //when
         DataAccessException ex = null;
         try {
@@ -63,16 +90,11 @@ public class FileReservationRepositoryTest {
     @Test
     public void shouldWriteReservation() {
         //given
-        deleteReservationFile();
-        deleteClientFile();
-        deleteProductsFile();
-
         Reservation reservation = createReservation();
         Product product = createProduct();
         //when
         reservation.add(product);
         reservationRepository.save(reservation);
-
         Reservation loadedReservation = reservationRepository.load(reservation.getNumber());
 
         //then
@@ -84,10 +106,6 @@ public class FileReservationRepositoryTest {
     @Test
     public void shouldOverwriteReservation() {
         //given
-        deleteReservationFile();
-        deleteClientFile();
-        deleteProductsFile();
-
         Reservation reservation = createReservation();
         Product product = createProduct();
         Product secondProduct = createSecondProduct();
@@ -108,10 +126,6 @@ public class FileReservationRepositoryTest {
     @Test
     public void shouldOverwriteReservationAndAddTwoProducts() {
         //given
-        deleteReservationFile();
-        deleteClientFile();
-        deleteProductsFile();
-
         Reservation reservation = createReservation();
         Product product = createProduct();
         Product secondProduct = createSecondProduct();
@@ -133,10 +147,6 @@ public class FileReservationRepositoryTest {
     @Test
     public void shouldntAddNoActiveProduct() {
         //given
-        deleteReservationFile();
-        deleteClientFile();
-        deleteProductsFile();
-
         Reservation reservation = createReservation();
         Product product = createProduct();
         Product secondProduct = createNotAvailableProduct();
@@ -160,63 +170,32 @@ public class FileReservationRepositoryTest {
 
     }
 
-    private void deleteLightBoxesFile() {
-        File file = new File(PATH_TEMP_LIGHTBOXES_FILE);
-        file.delete();
-    }
-
-    private void deleteClientFile() {
-        File file = new File(PATH_TEMP_CLIENT_FILE);
-        file.delete();
-    }
-
-    private void deleteProductsFile() {
-        File file = new File(PATH_TEMP_PRODUCT_FILE);
-        file.delete();
-    }
-
-    private void deleteReservationFile() {
-        File file = new File(PATH_TEMP_RESERVATION_FILE);
+    private void deleteReservationsFile() {
+        File file = new File(PATH_TEMP_FILE);
         file.delete();
     }
 
     private LightBox createLightBox() {
-        clientRepository.save(STANDARD_CLIENT);
         clientRepository.load(STANDARD_CLIENT.getNumber());
-        LightBox lightBox = new LightBox(STANDARD_CLIENT, "SomeLbx");
-
-        return lightBox;
+        return new LightBox(STANDARD_CLIENT, "SomeLbx");
     }
 
     private Reservation createReservation() {
-        clientRepository.save(STANDARD_CLIENT);
         clientRepository.load(STANDARD_CLIENT.getNumber());
-        Reservation reservation = new Reservation(STANDARD_CLIENT);
-
-        return reservation;
+        return new Reservation(STANDARD_CLIENT);
     }
 
     private Product createProduct() {
-        Product product = new Clip("nr1", new Money(100.3), Arrays.asList("tree", "forest"));
-        productRepository.save(product);
-        productRepository.load(product.getNumber());
+        Product product = productRepository.load(STANDARD_PRODUCT.getNumber());
         return product;
     }
 
     private Product createSecondProduct() {
-        Product product = new Picture("nr2", new Money(20.5), true, Arrays.asList("house", "flat"));
-        productRepository.save(product);
-        productRepository.load(product.getNumber());
+        Product product = productRepository.load(STANDARD_PRODUCT_2.getNumber());
         return product;
     }
     private Product createNotAvailableProduct() {
-        Product product = new Picture("nr10", new Money(20.5), false, Arrays.asList("java", "monster"));
-        productRepository.save(product);
-        productRepository.load(product.getNumber());
+        Product product = productRepository.load(NOT_AVAILABLE_PRODUCT.getNumber());
         return product;
-    }
-
-    private void addProductToLightBox(String lightBoxNr) {
-
     }
 }

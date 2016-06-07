@@ -13,9 +13,13 @@ public class FileReservationRepository implements ReservationRepository {
 
     private static final String TEMP_FILE_PATH = "tmp/tempsReservations.csv";
     private final String path;
+    private final ClientRepository clientRepository;
+    private final ProductRepository productRepository;
 
-    public FileReservationRepository(String path) {
+    public FileReservationRepository(String path, ClientRepository clientRepository, ProductRepository productRepository) {
         this.path = path;
+        this.clientRepository = clientRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -57,14 +61,14 @@ public class FileReservationRepository implements ReservationRepository {
 
         String number = components[0];
         String clientNr = components[1];
-        Client client = RepoFactory.createClientRepository().load(clientNr);
+        Client client = this.clientRepository.load(clientNr);
 
         String productsString = components[2];
         List<Product> products = new LinkedList<>();
         if (productsExists(productsString)) {
             String[] productsArray = productsString.split("\\|");
             for (String productNr : productsArray) {
-                Product product = RepoFactory.createProductRepository().load(productNr);
+                Product product = this.productRepository.load(productNr);
                 products.add(product);
             }
         } else

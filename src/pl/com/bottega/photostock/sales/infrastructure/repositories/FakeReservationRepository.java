@@ -48,14 +48,13 @@ public class FakeReservationRepository implements ReservationRepository {
             if (pairs.getValue().getOwner().getNumber().equals(clientNr) && pairs.getValue().getOpen())
                 return fakeDataBase.get(pairs.getValue().getNumber());
         }
-//        throw new DataDoesNotExistsException("Client's reservation doesn't exist: ", clientNr, FakeReservationRepository.class); //null
         return null;
     }
 
     @Override
     public void save(Reservation reservation) {
         if (reservation.getNumber() == null)
-            reservation.setNumber(UUID.randomUUID().toString());//symulacja generowania ID przez bazę danych
+            reservation.setNumber(UUID.randomUUID().toString());
         fakeDataBase.put(reservation.getNumber(), reservation);
     }
 

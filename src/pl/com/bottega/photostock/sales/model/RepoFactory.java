@@ -35,11 +35,11 @@ public class RepoFactory {
     }
 
     public static ReservationRepository createReservationRepository() {
-        return new FileReservationRepository(pathToFileReservationRepository);
+        return new FileReservationRepository(pathToFileReservationRepository, createClientRepository(), createProductRepository());
     }
 
     public static PurchaseRepository createPurchaseRepository() {
-        return new FilePurchaseRepository(pathToFilePurchaseRepository);
+        return new FilePurchaseRepository(pathToFilePurchaseRepository, createClientRepository(),createProductRepository());
     }
 
     /**

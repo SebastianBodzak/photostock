@@ -21,10 +21,11 @@ public class Reservation {
     private Client owner;
     private List<Product> items = new LinkedList<>();
     private boolean isOpen;
-    private boolean close = true;
+    private boolean close;
 
     public Reservation(Client owner) {
         this.owner = owner;
+        this.close = false;
 
     }
 

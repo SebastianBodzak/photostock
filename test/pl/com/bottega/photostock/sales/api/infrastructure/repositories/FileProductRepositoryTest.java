@@ -1,5 +1,6 @@
 package pl.com.bottega.photostock.sales.api.infrastructure.repositories;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import pl.com.bottega.photostock.sales.model.*;
@@ -25,6 +26,11 @@ public class FileProductRepositoryTest {
     public static final String PATH_TEMP_FILE = "tmp/products.csv";
 
     private ProductRepository productRepository = new FileProductRepository(PATH_TEMP_FILE);
+
+    @After
+    public void shouldDeleteProductFile() {
+        deleteProductsFile();
+    }
 
     @Test
     public void shouldLoadProduct() {
@@ -77,8 +83,6 @@ public class FileProductRepositoryTest {
     @Test
     public void shouldWriteProduct() {
         //given
-        deleteProductsFile();
-
         //when
         productRepository.save(AVAILABLE_CLIP);
         productRepository.save(NO_AVAILABLE_PICTURE);
@@ -100,8 +104,6 @@ public class FileProductRepositoryTest {
     @Test
     public void shouldOverwriteProduct() {
         //given
-        deleteProductsFile();
-
         //when
         Product product = new Picture("nr3", new Money(22), true, Arrays.asList("house", "flat"));
 
