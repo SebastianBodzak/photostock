@@ -23,7 +23,7 @@ public class FileClientRepositoryTest {
     public static final Client VIP_CLIENT = ClientFactory.create("Cleopatra", "Egypt", ClientStatus.VIP, "Rule z.o.o.");
     public static final String PATH_TEMP_FILE = "tmp/clients.csv";
 
-    private ClientRepository clientRepository = RepoFactory.createClientRepository();
+    private ClientRepository clientRepository = new FileClientRepository(PATH_TEMP_FILE);
 
     @Test
     public void shouldLoadClient() {

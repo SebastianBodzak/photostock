@@ -31,7 +31,7 @@ public class RepoFactory {
     }
 
     public static LightBoxRepository createLightBoxRepository() {
-        return new FileLightBoxRepository(pathToFileLightBoxRepository);
+        return new FileLightBoxRepository(pathToFileLightBoxRepository, createClientRepository(), createProductRepository());
     }
 
     public static ReservationRepository createReservationRepository() {

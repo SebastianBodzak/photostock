@@ -2,6 +2,7 @@ package pl.com.bottega.photostock.sales.infrastructure.repositories;
 
 import pl.com.bottega.photostock.sales.model.Money;
 import pl.com.bottega.photostock.sales.model.Product;
+import pl.com.bottega.photostock.sales.model.exceptions.DataDoesNotExistsException;
 import pl.com.bottega.photostock.sales.model.exceptions.ProductNotAvailableException;
 import pl.com.bottega.photostock.sales.model.ProductRepository;
 
@@ -68,6 +69,8 @@ public class FakeProductRepository implements ProductRepository {
         Product product = fakeDataBase.get(nr);
         if (product != null)
             fakeDataBase.remove(product);
+        else
+            throw new DataDoesNotExistsException("This Client doesnt exist: ", nr, FakeClientRepository.class);
     }
 
     @Override

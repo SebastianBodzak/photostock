@@ -1,7 +1,11 @@
 package pl.com.bottega.photostock.sales.api.infrastructure.repositories;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeClientRepository;
+import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeProductRepository;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FileLightBoxRepository;
 import pl.com.bottega.photostock.sales.model.*;
 import pl.com.bottega.photostock.sales.model.exceptions.DataAccessException;
@@ -21,20 +25,44 @@ import static org.junit.Assert.assertTrue;
  */
 public class FileLightBoxRepositoryTest {
 
-    private static final Client STANDARD_CLIENT = ClientFactory.create("Janusz", "Poland");
     private static final String PATH_TEMP_FILE = "tmp/lightboxes.csv";
-    private static final String PATH_TEMP_CLIENT_FILE = "tmp/clients.csv";
-    private static final String PATH_TEMP_PRODUCT_FILE= "tmp/products.csv";
 
-    private LightBoxRepository lightBoxRepository = RepoFactory.createLightBoxRepository();
+    private ClientRepository clientRepository = new FakeClientRepository();
+    private ProductRepository productRepository = new FakeProductRepository();
 
-    private ClientRepository clientRepository = RepoFactory.createClientRepository();
-    private ProductRepository productRepository = RepoFactory.createProductRepository();
+    private LightBoxRepository lightBoxRepository = new FileLightBoxRepository(PATH_TEMP_FILE, clientRepository, productRepository);
+    private static final Client STANDARD_CLIENT = ClientFactory.create("nr1", "Janusz", ClientStatus.STANDARD);
+    private static final Client STANDARD_CLIENT_2 = ClientFactory.create("nr2", "Janina", ClientStatus.STANDARD);
+    private static final Product STANDARD_PRODUCT = new Picture("nr1", "title1", new Money(10), true, null);
+    private static final Product STANDARD_PRODUCT_2 = new Picture("nr2", "title2", new Money(8), true, null);
+    private static final Product STANDARD_PRODUCT_3 = new Picture("nr3", "title3", new Money(20), true, null);
+    private static final Product NOT_AVAILABLE_PRODUCT = new Picture("nr3", "title3", new Money(20), false, null);
+
+    @Before
+    public void shouldRemoveRepositoriesAndCreateClientsAndProducts() {
+        clientRepository.save(STANDARD_CLIENT);
+        clientRepository.save(STANDARD_CLIENT_2);
+        productRepository.save(STANDARD_PRODUCT);
+        productRepository.save(STANDARD_PRODUCT_2);
+        productRepository.save(STANDARD_PRODUCT_3);
+        productRepository.save(NOT_AVAILABLE_PRODUCT);
+    }
+
+    @After
+    public void shouldCleanRepositories() {
+        clientRepository.remove(STANDARD_CLIENT.getNumber());
+        clientRepository.remove(STANDARD_CLIENT_2.getNumber());
+        productRepository.remove(STANDARD_PRODUCT.getNumber());
+        productRepository.remove(STANDARD_PRODUCT_2.getNumber());
+        productRepository.remove(STANDARD_PRODUCT_3.getNumber());
+        productRepository.remove(NOT_AVAILABLE_PRODUCT.getNumber());
+        deleteLightBoxesFile();
+    }
 
     @Test
     public void shouldLoadLightBox() {
         //given
-        LightBoxRepository lightBoxRepository = new FileLightBoxRepository(getClass().getResource("/fixtures/lightboxes.csv").getPath());
+        LightBoxRepository lightBoxRepository = new FileLightBoxRepository(getClass().getResource("/fixtures/lightboxes.csv").getPath(), clientRepository, productRepository);
         //when
         LightBox lightBox = lightBoxRepository.load("nr1");
         //then
@@ -45,7 +73,7 @@ public class FileLightBoxRepositoryTest {
     @Test
     public void shouldThrowFileAccessExceptionWhenFileNotFound() {
         //given
-        LightBoxRepository lightBoxRepository = new FileLightBoxRepository("fake path");
+        LightBoxRepository lightBoxRepository = new FileLightBoxRepository("fake path", clientRepository, productRepository);
         //when
         DataAccessException ex = null;
         try {
@@ -61,10 +89,6 @@ public class FileLightBoxRepositoryTest {
     @Test
     public void shouldWriteLightBox() {
         //given
-        deleteLightBoxesFile();
-        deleteClientFile();
-        deleteProductsFile();
-
         LightBox lightBox = createLightBox();
         Product product = createProduct();
         //when
@@ -81,10 +105,6 @@ public class FileLightBoxRepositoryTest {
     @Test
     public void shouldOverwriteLightBox() {
         //given
-        deleteLightBoxesFile();
-        deleteClientFile();
-        deleteProductsFile();
-
         LightBox lightBox = createLightBox();
         Product product = createProduct();
         Product secondProduct = createSecondProduct();
@@ -107,10 +127,6 @@ public class FileLightBoxRepositoryTest {
     @Test
     public void shouldOverwriteLightBoxAndAddTwoProducts() {
         //given
-        deleteLightBoxesFile();
-        deleteClientFile();
-        deleteProductsFile();
-
         LightBox lightBox = createLightBox();
         Product product = createProduct();
         Product secondProduct = createSecondProduct();
@@ -132,10 +148,6 @@ public class FileLightBoxRepositoryTest {
     @Test
     public void shouldntAddNoActiveProduct() {
         //given
-        deleteLightBoxesFile();
-        deleteClientFile();
-        deleteProductsFile();
-
         LightBox lightBox = createLightBox();
         Product product = createProduct();
         Product secondProduct = createNotAvailableProduct();
@@ -164,41 +176,22 @@ public class FileLightBoxRepositoryTest {
         file.delete();
     }
 
-    private void deleteClientFile() {
-        File file = new File(PATH_TEMP_CLIENT_FILE);
-        file.delete();
-    }
-
-    private void deleteProductsFile() {
-        File file = new File(PATH_TEMP_PRODUCT_FILE);
-        file.delete();
-    }
-
     private LightBox createLightBox() {
-        clientRepository.save(STANDARD_CLIENT);
         clientRepository.load(STANDARD_CLIENT.getNumber());
-        LightBox lightBox = new LightBox(STANDARD_CLIENT, "SomeLbx");
-
-        return lightBox;
+        return new LightBox(STANDARD_CLIENT, "SomeLbx");
     }
 
     private Product createProduct() {
-        Product product = new Clip("nr1", new Money(100.3), Arrays.asList("tree", "forest"));
-        productRepository.save(product);
-        productRepository.load(product.getNumber());
+        Product product = productRepository.load(STANDARD_PRODUCT.getNumber());
         return product;
     }
 
     private Product createSecondProduct() {
-        Product product = new Picture("nr2", new Money(20.5), true, Arrays.asList("house", "flat"));
-        productRepository.save(product);
-        productRepository.load(product.getNumber());
+        Product product = productRepository.load(STANDARD_PRODUCT_2.getNumber());
         return product;
     }
     private Product createNotAvailableProduct() {
-        Product product = new Picture("nr10", new Money(20.5), false, Arrays.asList("java", "monster"));
-        productRepository.save(product);
-        productRepository.load(product.getNumber());
+        Product product = productRepository.load(NOT_AVAILABLE_PRODUCT.getNumber());
         return product;
     }
 

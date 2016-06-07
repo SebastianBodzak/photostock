@@ -13,9 +13,13 @@ public class FileLightBoxRepository implements LightBoxRepository {
 
     private static final String TEMP_FILE_PATH = "tmp/tempslightboxes.csv";
     private final String path;
+    private final ClientRepository clientRepository;
+    private final ProductRepository productRepository;
 
-    public FileLightBoxRepository(String path) {
+    public FileLightBoxRepository(String path, ClientRepository clientRepository, ProductRepository productRepository) {
         this.path = path;
+        this.clientRepository = clientRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -82,7 +86,7 @@ public class FileLightBoxRepository implements LightBoxRepository {
 
     private void parseAndAddProducts(List<Product> products, String[] productsArray) {
         for (String productNr : productsArray) {
-            Product product = RepoFactory.createProductRepository().load(productNr);
+            Product product = this.productRepository.load(productNr);
             products.add(product);
         }
     }
@@ -91,7 +95,7 @@ public class FileLightBoxRepository implements LightBoxRepository {
         for (String pC : permissionComponents) {
             String[] pCParts = pC.split(" ");
             String clientNr = pCParts[0];
-            Client client = RepoFactory.createClientRepository().load(clientNr);
+            Client client = this.clientRepository.load(clientNr);
             ClientRole clientRole = ClientRole.valueOf(pCParts[1].toUpperCase());
             permissions.add(new Permission(client, clientRole));
         }

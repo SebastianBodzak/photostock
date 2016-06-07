@@ -24,7 +24,7 @@ public class FileProductRepositoryTest {
     public static final Product NO_AVAILABLE_PICTURE = new Picture("nr2", new Money(20.5), false, Arrays.asList("house", "flat"));
     public static final String PATH_TEMP_FILE = "tmp/products.csv";
 
-    private ProductRepository productRepository = RepoFactory.createProductRepository();
+    private ProductRepository productRepository = new FileProductRepository(PATH_TEMP_FILE);
 
     @Test
     public void shouldLoadProduct() {
