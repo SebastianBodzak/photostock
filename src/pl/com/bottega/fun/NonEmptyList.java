@@ -30,12 +30,14 @@ public class NonEmptyList<T> implements FunList<T> {
 
     @Override
     public FunList<T> remove(T el) {
-        return null;
+        return new NonEmptyList<>(head, tail.remove(el));
     }
 
     @Override
     public FunList<T> filter(Predicate<T> predicate) {
-        return null;
+        if (predicate.test(head))
+            return new NonEmptyList<>(head, tail.filter(predicate));
+        return tail.filter(predicate);
     }
 
     @Override

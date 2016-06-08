@@ -7,10 +7,7 @@ import pl.com.bottega.photostock.sales.model.exceptions.DataAccessException;
 import pl.com.bottega.photostock.sales.model.products.Picture;
 
 import java.sql.*;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Dell on 2016-05-29.
@@ -62,14 +59,25 @@ public class JDBCProductRepository implements ProductRepository {
     @Override
     public void save(Product product) throws DataAccessException {
         try (Connection c = getConnection()) {
-            PreparedStatement preparedStatement = c.prepareStatement("INSERT INTO Products (number, name, available, priceCents, priceCurrency, type) VALUES (?, ?, ?, ?, ?, '');");
-            preparedStatement.setString(1, product.getNumber());
-            preparedStatement.setString(2, product.getTitle());
-            preparedStatement.setBoolean(3, product.isAvailable());
-            preparedStatement.setInt(4, product.getPrice().cents());
+            boolean ifProductExists = ifProductExist(product);
+            String query = ifProductExists ?
+                "UPDATE PRODUCTS SET number = ?, name = ?, available = ?, priceCents = ?, priceCurrency = ?, type = '' WHERE number = ?"
+                : "INSERT INTO Products (number, name, available, priceCents, priceCurrency, type) VALUES (?, ?, ?, ?, ?, '');";
+
+
+            PreparedStatement ps = c.prepareStatement(query);
+            if (ifProductExists)
+                ps.setString(6, product.getNumber());
+
+            if (product.getNumber() == null)
+                product.setNumber(UUID.randomUUID().toString());
+            ps.setString(1, product.getNumber());
+            ps.setString(2, product.getTitle());
+            ps.setBoolean(3, product.isAvailable());
+            ps.setInt(4, product.getPrice().cents());
             String currency = String.valueOf(product.getPrice().getCurrency());
-            preparedStatement.setString(5, currency);
-            preparedStatement.execute();
+            ps.setString(5, currency);
+            ps.executeUpdate();
             if (!(product.getTags() == null))
                 insertTags(c, product);
         } catch (Exception ex) {
@@ -77,12 +85,18 @@ public class JDBCProductRepository implements ProductRepository {
         }
     }
 
+    private boolean ifProductExist(Product product) {
+        if (load(product.getNumber()) == null)
+            return false;
+        return true;
+    }
+
     private void insertTags(Connection c, Product product) throws SQLException {
         if (product instanceof Picture) {
             Picture picture = (Picture) product;
             List<String> tags = picture.getTags();
 
-            ResultSet rs = queryTags(c, tags);
+            ResultSet rs = queryTags(c, tags); //SELECT id, name FROM Tags WHERE name IN (???)
             //String[] existingTags = new String[rs.getFetchSize()];
             Set<String> existingTags = new HashSet<>();
             while (rs.next()) {
@@ -93,7 +107,7 @@ public class JDBCProductRepository implements ProductRepository {
                 if (!existingTags.contains(tag))
                     insertTag(c, tag);
             }
-            linkTags(c, picture);
+            linkOrRemoveTags(c, picture);
         }
     }
 
@@ -103,27 +117,68 @@ public class JDBCProductRepository implements ProductRepository {
         ps.executeUpdate();
     }
 
-    private void linkTags(Connection c, Product product) throws SQLException {//todo trzeba sprawdzić czy już dane połączenie istnieje (bo nie wie i dodaje na ślepo) i dodać tylko nowe! I w teście, chcę usunąć taga
-        PreparedStatement ps = c.prepareStatement("SELECT id FROM products WHERE number = ?");
+    private void linkOrRemoveTags(Connection c, Product product) throws SQLException {
+        PreparedStatement ps = c.prepareStatement("SELECT id FROM Products WHERE number = ?");
         ps.setString(1, product.getNumber());
         ResultSet rs = ps.executeQuery();
         rs.next();
         int productId = rs.getInt("id");
 
-        rs = queryTags(c, product.getTags());
+        rs = queryTags(c, product.getTags()); //wyciąga id i name tagów produktu
         Set<Integer> tagIds = new HashSet<>();
         while (rs.next()) {
             tagIds.add(rs.getInt("id"));
         }
-        /*
-        1. SELECT, który wyciąga istniejące połączenia z productsTags
-        2. Iterowanie po wyniku, żeby stwierdzić, co trzeba dodać, a co usunąć
-         */
-        //trzeba to zapisać gdzieś tutaj todo usunąć niepotrzebne połączenia (lub po pętli)
-        for (Integer tagId : tagIds) {
-            //todo if połączenie nie istnieje
-            linkTag(c, productId, tagId);
+
+        ps = c.prepareStatement("SELECT productId, tagId FROM ProductsTags WHERE productId = ?");
+        ps.setInt(1, productId);
+        rs = ps.executeQuery();
+
+        Set<Integer> alreadyConnectedTagIds = new HashSet<>();
+        while (rs. next()) {
+            alreadyConnectedTagIds.add(rs.getInt("tagId"));
         }
+
+        removeNoLongerExistProductsTagConnections(c, productId, tagIds, alreadyConnectedTagIds);
+        linkTags(c, productId, tagIds, alreadyConnectedTagIds);
+    }
+
+    private void linkTags(Connection c, int productId, Set<Integer> tagIds, Set<Integer> alreadyConnectedTagIds) throws SQLException {
+        for (int tagId : tagIds) {
+            if (!(ifTagIsConnect(tagId, alreadyConnectedTagIds)))
+                linkTag(c, productId, tagId);
+        }
+    }
+
+    private void removeNoLongerExistProductsTagConnections(Connection c, int productId, Set<Integer> tagIds, Set<Integer> alreadyConnectedTagIds) throws SQLException {
+        for (int alConnTagId : alreadyConnectedTagIds) {
+            if (ifTagIsRemoved(alConnTagId, tagIds)) {
+                removeConnection(c, alConnTagId, productId);
+            }
+        }
+    }
+
+    private void removeConnection(Connection c, int alConnTagId, int prodId) throws SQLException{
+        PreparedStatement ps = c.prepareStatement("DELETE FROM ProductsTags WHERE productId = ? AND tagId = ?");
+        ps.setInt(1, prodId);
+        ps.setInt(2, alConnTagId);
+        ps.execute();
+    }
+
+    private boolean ifTagIsRemoved(int alConnTagId, Set<Integer> tagIds) {
+        for (int tag : tagIds) {
+            if (tag == alConnTagId)
+                return false;
+        }
+        return true;
+    }
+
+    private boolean ifTagIsConnect(Integer tagId, Set<Integer> alreadyConnectedTagIds) {
+        for (int tag : alreadyConnectedTagIds) {
+            if (tagId == tag)
+                return true;
+        }
+        return false;
     }
 
     private void linkTag(Connection c, int productId, Integer tagId) throws SQLException {
@@ -152,6 +207,13 @@ public class JDBCProductRepository implements ProductRepository {
 
     }
 
+    /**
+     * It prints appropriate quantity of question marks
+     * @param c
+     * @param tags
+     * @return
+     * @throws SQLException
+     */
     private ResultSet queryTags(Connection c, List<String> tags) throws SQLException {
         String[] questionMarks = new String[tags.size()];
         for(int i = 0; i <tags.size(); i++)

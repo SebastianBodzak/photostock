@@ -19,7 +19,7 @@ public class EmptyList<T> implements FunList<T> {
 
     @Override
     public FunList<T> filter(Predicate<T> predicate) {
-        return null;
+        return this;
     }
 
     @Override

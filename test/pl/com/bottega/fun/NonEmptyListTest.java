@@ -183,4 +183,42 @@ public class NonEmptyListTest {
         expectedTags = expectedTags.add("tag1").add("tag2").add("tag3").add("tag4");
         Assert.assertEquals(expectedTags, tags);
     }
+
+    @Test
+    public void shouldFFilterElement() {
+        //given
+        FunList<Integer> l = FunList.create();
+        //when
+        l = l.add(10).add(50).add(100).add(200);
+        //then
+        FunList<Integer> result = l.filter(new Predicate<Integer>() {
+            @Override
+            public boolean test(Integer integer) {
+                return integer < 100;
+            }
+        });
+
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals(10, (int) result.get(0));
+        Assert.assertEquals(50, (int) result.get(1));
+
+        FunList<Integer> result2 = l.filter( (number) -> number >= 100);
+
+        Assert.assertEquals(2, result2.size());
+        Assert.assertEquals(100, (int) result2.get(0));
+        Assert.assertEquals(200, (int) result2.get(1));
+        Assert.assertNull(l.find((x) -> x > 1000));
+    }
+
+    @Test
+    public void shouldRemoveElement() {
+        //given
+        FunList<Integer> l = FunList.create();
+        //when
+        l = l.add(15).add(50).add(100);
+        //then
+        FunList<Integer> result = l.remove(1);
+
+        Assert.assertEquals(2, result.size());
+    }
 }
