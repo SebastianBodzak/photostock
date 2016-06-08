@@ -24,4 +24,6 @@ public interface Product {
     public void activate();
     public void deactivate();
     String[] export();
+    boolean isTagedBy(String tag);
+    boolean isTagedByAnyOf(List<String> tags);
 }

@@ -1,5 +1,10 @@
 package pl.com.bottega.photostock.sales.model;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -153,5 +158,21 @@ public abstract class AbstractProduct implements Product {
         result = 31 * result + (available ? 1 : 0);
         result = 31 * result + (tags != null ? tags.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public boolean isTagedBy(String tag) {
+        return tags.contains(tag);
+    }
+
+    @Override
+    public boolean isTagedByAnyOf(List<String> tags) {
+        Optional<String> tag = Iterables.tryFind(tags, new Predicate<String>() {
+            @Override
+            public boolean apply(String s) {
+                return isTagedBy(s);
+            }
+        });
+        return tag.isPresent();
     }
 }

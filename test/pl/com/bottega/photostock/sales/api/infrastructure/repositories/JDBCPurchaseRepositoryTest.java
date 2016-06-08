@@ -24,7 +24,9 @@ public class JDBCPurchaseRepositoryTest {
         Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:photostock", "SA", "");
         dropTables(c);
         createClientsTable(c);
+        createStatusesTable(c);
         createProductsTable(c);
+        createTagsTable(c);
         createPurchasesTable(c);
         createPurchasesProductsTable(c);
 
@@ -45,9 +47,12 @@ public class JDBCPurchaseRepositoryTest {
     }
 
     private void dropTables(Connection c) throws SQLException {
-        c.createStatement().executeUpdate("DROP TABLE Purchases IF EXISTS");
         c.createStatement().executeUpdate("DROP TABLE PurchasesProducts IF EXISTS");
+        c.createStatement().executeUpdate("DROP TABLE ProductsTags IF EXISTS");
+        c.createStatement().executeUpdate("DROP TABLE Tags IF EXISTS");
+        c.createStatement().executeUpdate("DROP TABLE Purchases IF EXISTS");
         c.createStatement().executeUpdate("DROP TABLE Products IF EXISTS");
+        c.createStatement().executeUpdate("DROP TABLE Statuses IF EXISTS");
         c.createStatement().executeUpdate("DROP TABLE Clients IF EXISTS");
     }
 
@@ -94,6 +99,25 @@ public class JDBCPurchaseRepositoryTest {
                 "  purchaseId INTEGER FOREIGN KEY REFERENCES Purchases(id),\n" +
                 "  productId INTEGER FOREIGN KEY REFERENCES Products(id),\n" +
                 "  PRIMARY KEY (purchaseId, productId)\n" +
+                ");");
+    }
+
+    private void createTagsTable(Connection c) throws SQLException {
+        c.createStatement().executeUpdate("CREATE TABLE Tags (\n" +
+                "  id INTEGER IDENTITY PRIMARY KEY,\n" +
+                "  name VARCHAR(255) NOT NULL\n" +
+                ");");
+        c.createStatement().executeUpdate("CREATE TABLE ProductsTags (\n" +
+                "  productId INTEGER FOREIGN KEY REFERENCES Products(id),\n" +
+                "  tagId INTEGER FOREIGN KEY REFERENCES Tags(id),\n" +
+                "  PRIMARY KEY (productId, tagId)\n" +
+                ");\n");
+    }
+
+    private void createStatusesTable(Connection c) throws SQLException {
+        c.createStatement().executeUpdate("CREATE TABLE Statuses (\n" +
+                "  id IDENTITY PRIMARY KEY,\n" +
+                "  name VARCHAR(40) NOT NULL\n" +
                 ");");
     }
 

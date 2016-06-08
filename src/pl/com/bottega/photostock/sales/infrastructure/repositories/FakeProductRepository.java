@@ -1,6 +1,10 @@
 package pl.com.bottega.photostock.sales.infrastructure.repositories;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import pl.com.bottega.photostock.sales.model.Money;
+import pl.com.bottega.photostock.sales.model.Offer;
 import pl.com.bottega.photostock.sales.model.Product;
 import pl.com.bottega.photostock.sales.model.exceptions.DataDoesNotExistsException;
 import pl.com.bottega.photostock.sales.model.exceptions.ProductNotAvailableException;
@@ -13,7 +17,7 @@ import java.util.*;
  */
 public class FakeProductRepository implements ProductRepository {
 
-    private static Map<String, Product> fakeDataBase = new HashMap<>();
+    private static Map<String, Product> fakeDataBase = new LinkedHashMap<>();
 
 //    static {
 //        Picture tree = new Picture("nr1", "nr1", new Money(1), Arrays.asList("tree", "green"));
@@ -94,14 +98,8 @@ public class FakeProductRepository implements ProductRepository {
                     result.add(product);
                 }
 
-                if (tags != null) {
-                    breakPoint : for (String tag : tags) {
-                        for (String prodTag : product.getTags())
-                            if (tag == prodTag) {
-                                result.add(product);
-                                break breakPoint;
-                            }
-                    }
+                if (tags != null && product.isTagedByAnyOf(tags)) {
+                    result.add(product);
                 }
 
                 if (author != null && product.getAuthor().equals(author)) {
@@ -111,6 +109,14 @@ public class FakeProductRepository implements ProductRepository {
         }
         return result;
     }
+//
+//    public Offer generateOffer() {
+//        List<Product> offerItems = Lists.newLinkedList(Iterables.filter(items, new Predicate<Product>() {
+//            @Override
+//            public boolean apply(Product product) {
+//                return product.isAvailable();
+//            }
+//        }));
 
     @Override
     public void removeAllProducts() {
