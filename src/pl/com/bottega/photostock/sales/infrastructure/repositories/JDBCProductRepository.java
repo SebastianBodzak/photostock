@@ -96,7 +96,7 @@ public class JDBCProductRepository implements ProductRepository {
             Picture picture = (Picture) product;
             List<String> tags = picture.getTags();
 
-            ResultSet rs = queryTags(c, tags); //SELECT id, name FROM Tags WHERE name IN (???)
+            ResultSet rs = queryTags(c, tags);
             //String[] existingTags = new String[rs.getFetchSize()];
             Set<String> existingTags = new HashSet<>();
             while (rs.next()) {
@@ -124,7 +124,7 @@ public class JDBCProductRepository implements ProductRepository {
         rs.next();
         int productId = rs.getInt("id");
 
-        rs = queryTags(c, product.getTags()); //wyciąga id i name tagów produktu
+        rs = queryTags(c, product.getTags());
         Set<Integer> tagIds = new HashSet<>();
         while (rs.next()) {
             tagIds.add(rs.getInt("id"));
