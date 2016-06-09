@@ -55,10 +55,8 @@ public class LightBox {
 
     private boolean validateUser(Client client, ClientRole clientRole) {
         if (client != null) {
-            if (hasNotBeenAddEarlier(client))
+            Preconditions.checkArgument(hasNotBeenAddEarlier(client), "This user has access to your lightBox already!", client);
                 return true;
-            else
-                throw new IllegalStateException("This user has access to your lightBox already!");
         } else {
             throw new IllegalStateException("This user doesnt exist!");
         }
@@ -81,27 +79,24 @@ public class LightBox {
         this.name = newName;
     }
 
-    public void add(Product productToAdd) throws IllegalStateException, IllegalArgumentException {
+    public void add(Product productToAdd) throws IllegalStateException, IllegalArgumentException, ProductNotAvailableException {
         validate();
-            if (items.contains(productToAdd))
-                throw new IllegalArgumentException("already contains");
+        Preconditions.checkArgument(!items.contains(productToAdd), "already contains");
             if (!productToAdd.isAvailable())
                 throw new ProductNotAvailableException("Trying to reserve", productToAdd.getNumber(), Reservation.class);
         items.add(productToAdd);
     }
 
-    private void validate() {
-        if (closed)
-            throw new IllegalStateException("Lightbox is closed");
+    private void validate() throws IllegalStateException{
+        Preconditions.checkState(!closed, "Lightbox is closed");
 //        if (!owner.isActive())
 //            throw new IllegalStateException("Owner is not active!");
     }
 
 
-    public void remove(Product productToRemove) throws IllegalArgumentException {
+    public void remove(Product product) throws IllegalArgumentException {
         validate();
-        if (!items.remove(productToRemove))
-            throw new IllegalArgumentException("Does not contain");
+        Preconditions.checkArgument(items.remove(product), "Does not contain", product);
     }
 
     public int getItemsCounter() {
@@ -113,11 +108,8 @@ public class LightBox {
     }
 
     public Set<Permission> getOwners() throws IllegalStateException {
-        if (permissions != null) {
+        Preconditions.checkState(permissions != null, "No one has permissions");
             return permissions;
-        } else {
-            throw new IllegalStateException("No one has permissions");
-        }
     }
 
     public boolean isClosed() {
@@ -125,8 +117,8 @@ public class LightBox {
     }
 
     public String getOwnerName() throws IllegalStateException {
-        if (permissions != null) {
-            String result = "";
+        Preconditions.checkState(permissions == null, "No one has permissions");
+           {String result = "";
             StringBuilder sB = new StringBuilder(result);
             int counter = 1;
             for (Permission per : permissions) {
@@ -138,9 +130,7 @@ public class LightBox {
             }
             result = sB.toString();
             return result;
-        } else {
-            throw new IllegalStateException("No one has permissions");
-        }
+            }
     }
 
     public static void mergeList(LightBox mergeLightBox, LightBox...lightBox) {

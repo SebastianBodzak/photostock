@@ -51,11 +51,6 @@ public class AcceptanceStory {
         //ten produkt stanie sie pozniej niedostepny
         adminPanel.addProduct(AbstractProduct.KindOfProduct.PICTURE, "lamborghini", PRICE_3, "lamborghini", "huracan");
 
-//        Client client = STANDARD_CLIENT;
-//        client.recharge(new Money(10000000));
-//        clientRepository.save(client);
-//        clientRepository.load(client.getNumber());
-
         //użytkownik się rejestruje i doładowuje konto
         String clientNr = clientManagement.register("nazwa 1", "nazwa 2", "addresss");
         clientManagement.recharge(clientNr, INITIAL_MONEY);
@@ -98,28 +93,8 @@ public class AcceptanceStory {
         Assert.assertEquals(1, purchases.size());
 
         //clear database (need rebuild)
+        deleteAllFiles();
     }
-
-//    @Test
-//    public void story2() {
-//        //adminPanel.add(Product);
-//        //adminPanel.add(Product);
-//        //adminPanel.add(Product);
-//        adminPanel.addProduct(AbstractProduct.KindOfProduct.PICTURE, "er", new Money(1), null);
-//
-//        String clientNr = clientManagement.register("Janusz", "Kowalski", "Address");
-//        clientManagement.recharge(clientNr, INITIAL_MONEY);
-//        List<Product> products = productsCatalog.find(null, null, null, null, true);
-//
-//
-//        for (Product product : products)
-//            purchaseProcess.add(clientNr, product.getNumber());
-//
-//            //dodanie do LBX i przeniesienie do rezerwacji
-//
-//        purchaseProcess.calculateOffer(clientNr);
-//        purchaseProcess.confirm(clientNr);
-//    }
 
     private void deleteAllFiles() {
         deletePurchaseFile();

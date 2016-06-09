@@ -33,6 +33,8 @@ public class ClientFactory {
         return client;
     }
 
+
+
     public static Client create(String name, String address, ClientStatus clientStatus, String companyName) {
         PayingStrategy payingStrategy;
 
@@ -68,7 +70,7 @@ public class ClientFactory {
         return client;
     }
 
-    public static Client create(String number, String name, String address, ClientStatus clientStatus, String companyName) {
+    public static Client create(String number, String name, String address, ClientStatus clientStatus, String companyName) { //// TODO: 2016-06-09
         PayingStrategy payingStrategy;
 
         Money amount = new Money(0);
@@ -98,7 +100,6 @@ public class ClientFactory {
         }
 
         Client client = new Client(number, name, address, clientStatus, debt, amount, creditLimit, company, payingStrategy);
-//        client.setPayingStrategy(payingStrategy);
 
         return client;
     }

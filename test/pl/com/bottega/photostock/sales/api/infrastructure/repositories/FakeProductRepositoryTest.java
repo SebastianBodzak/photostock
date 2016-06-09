@@ -50,7 +50,7 @@ public class FakeProductRepositoryTest {
     }
 
     @Test
-    public void shouldFindProductByMaxPrice() {
+    public void shouldFindAvailableProductByMaxPrice() {
         //given
         //when
         addProductsToRepository();
@@ -60,6 +60,19 @@ public class FakeProductRepositoryTest {
         Money sumOfProductsPrices = products.get(0).getPrice().add(products.get(1).getPrice());
         Assert.assertEquals(2, products.size());
         Assert.assertEquals(new Money(43), sumOfProductsPrices);
+    }
+
+    @Test
+    public void shouldFindAllProductByMaxPrice() {
+        //given
+        //when
+        addProductsToRepository();
+        List<Product> products = new LinkedList<>();
+        products = productRepository.find(null, null, null, new Money(40), true);
+
+        Money sumOfProductsPrices = products.get(0).getPrice().add(products.get(1).getPrice()).add(products.get(2).getPrice());
+        Assert.assertEquals(3, products.size());
+        Assert.assertEquals(new Money(63.5), sumOfProductsPrices);
     }
 
     private void addProductsToRepository() {

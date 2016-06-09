@@ -1,5 +1,7 @@
 package pl.com.bottega.photostock.sales.model;
 
+import com.google.common.base.Objects;
+
 /**
  * Created by Dell on 2016-05-04.
  */
@@ -29,18 +31,13 @@ public class Permission {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Permission that = (Permission) o;
-
-        if (client != null ? !client.equals(that.client) : that.client != null) return false;
-        return clientRole == that.clientRole;
-
+        return Objects.equal(client, that.client) &&
+                clientRole == that.clientRole;
     }
 
     @Override
     public int hashCode() {
-        int result = client != null ? client.hashCode() : 0;
-        result = 31 * result + (clientRole != null ? clientRole.hashCode() : 0);
-        return result;
+        return Objects.hashCode(client, clientRole);
     }
 }

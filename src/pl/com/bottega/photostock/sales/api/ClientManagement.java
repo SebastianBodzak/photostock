@@ -1,5 +1,6 @@
 package pl.com.bottega.photostock.sales.api;
 
+import com.google.common.base.Preconditions;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeClientRepository;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeProductRepository;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FakePurchaseRepository;
@@ -44,11 +45,10 @@ public class ClientManagement {
         clientRepository.save(client);
     }
 
-    public List<Product> findPurchase(String clientNr) {
+    public List<Product> findPurchase(String clientNr) throws IllegalArgumentException {
         Client client = clientRepository.load(clientNr);
         List<Product> productList = purchaseRepository.search(client);
-        if (productList.isEmpty())
-            throw new IllegalStateException("You do not have any purchases");
+        Preconditions.checkArgument(productList.isEmpty(), "You do not have any purchases");
 
         return productList;
     }

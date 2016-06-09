@@ -8,7 +8,7 @@ import java.util.Comparator;
 public class PriceAndNameProductComparator implements Comparator<Product> {
     @Override
     public int compare(Product o1, Product o2) {
-        if (o1.calculatePrice() == o2.calculatePrice()){//TODO jak zmienimy na Money to equals
+        if (o1.calculatePrice().equals(o2.calculatePrice())){
             return o1.getNumber().compareTo(o2.getNumber());
         }
         else{
@@ -18,13 +18,3 @@ public class PriceAndNameProductComparator implements Comparator<Product> {
         }
     }
 }
-//    @Override
-//    public int compare(Product o1, Product o2) {
-//        if (o1.calculatePrice() == o2.calculatePrice()){ //TODO jak zmienimy na MOney to equals
-//            return o1.getNumber().compareTo(o2.getNumber());
-//        } else {
-//            if (o1.calculatePrice() > o2.calculatePrice())
-//                return 1;
-//        }
-//    }
-//}

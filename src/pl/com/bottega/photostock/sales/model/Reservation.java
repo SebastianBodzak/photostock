@@ -1,5 +1,6 @@
 package pl.com.bottega.photostock.sales.model;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -11,6 +12,8 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+
+import static com.google.common.base.Preconditions.*;
 
 /**
  * Created by Dell on 2016-03-13.
@@ -26,7 +29,6 @@ public class Reservation {
     public Reservation(Client owner) {
         this.owner = owner;
         this.close = false;
-
     }
 
     public Reservation(String number, Client owner, List<Product> items, boolean close) {
@@ -36,10 +38,9 @@ public class Reservation {
         this.close = close;
     }
 
-    public void add(Product productToAdd) throws IllegalArgumentException, IllegalStateException {
+    public void add(Product productToAdd) throws IllegalArgumentException, IllegalStateException, ProductNotAvailableException {
         validate();
-        if (items.contains(productToAdd))
-            throw new IllegalArgumentException("already contains");
+        checkArgument(!items.contains(productToAdd), "already contains");
         if (productToAdd.isAvailable())
             items.add(productToAdd);
         else
@@ -47,14 +48,12 @@ public class Reservation {
     }
 
     private void validate() throws  IllegalStateException {
-        if (!owner.isActive())
-            throw new IllegalStateException("Owner is not active!");
+        checkArgument(owner.isActive(), "Owner is not active!");
     }
 
-    public void remove(Product productToRemove) {
+    public void remove(Product productToRemove) throws IllegalArgumentException {
         boolean removed = items.remove(productToRemove);
-        if (!removed)
-            throw new IllegalArgumentException("Product has been never added!");
+        checkArgument(removed, "Product has been never added!");
     }
 
     public Offer generateOffer() {
@@ -65,23 +64,10 @@ public class Reservation {
             }
         }));
 
-
         Comparator<Product> comparator = new PriceAndNameProductComparator();
         Collections.sort(offerItems, comparator);
         return new Offer(owner, offerItems);
     }
-
-//    public Offer generateOffer() {
-//        List<Product> offerItems = new LinkedList<>();
-//        for (Product product : items) {
-//            if (product.isAvailable())
-//                offerItems.add(product);
-//        }
-//
-//        Comparator<Product> comparator = new PriceAndNameProductComparator();
-//        Collections.sort(offerItems, comparator);
-//        return new Offer(owner, offerItems);
-//    }
 
     public int getItemsCount() {
         return items.size();

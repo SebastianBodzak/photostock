@@ -1,5 +1,7 @@
 package pl.com.bottega.photostock.sales.model;
 
+import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import pl.com.bottega.commons.math.Fraction;
 
 import java.util.Currency;
@@ -15,18 +17,23 @@ public class Money {
 
     public enum CurrencyValues {
         AUD, BRL, CAD, CHF, CNH, CZK, DKK, EUR, GBP, HKD, HUF, ILS, INR, JPY, KRW, MXN, MYR, NOK, NZD, PLN, RUB, SEK, SGD, THB, TRY, TWD, USD, ZAR;
-
     }
 
     private final Fraction value;
     private final Currency currency;
 
-    public Money(double fractionalValue, CurrencyValues currency) throws IllegalArgumentException { //typ String, żeby uniknąć problemów operacji na typie double (dopóki nie używamy BigDecimals)
-        if (fractionalValue < 0)
-            throw new IllegalArgumentException("Amount can not be less then zero");
+    /**
+     * String type for avoiding double problems
+     * Does not support three decimals currency format
+     * @param fractionalValue
+     * @param currency
+     * @throws IllegalArgumentException
+     */
+    public Money(double fractionalValue, CurrencyValues currency) throws IllegalArgumentException {
+        Preconditions.checkArgument(!(fractionalValue < 0), "Amount can not be less then zero");
         int integerValue = (int) fractionalValue;
         int cents = 0;
-        if (fractionalValue % 1 != 0) { //w takiej formie (na obecną sytuację) dla nielicznych walut z trzema miejscami po przecinku zrobiłbym specjalnie dla nich dodatkową instrukcję
+        if (fractionalValue % 1 != 0) {
             String temporaryFractionalValue = String.valueOf(fractionalValue);
             temporaryFractionalValue = temporaryFractionalValue.substring(temporaryFractionalValue.indexOf(".") + 1);
             if (temporaryFractionalValue.length() == 1)
@@ -41,17 +48,30 @@ public class Money {
         this.currency = Currency.getInstance(String.valueOf(currency));
     }
 
+    /**
+     * String type for avoiding double problems
+     * Does not support three decimals currency format
+     * @param integerValue
+     * @param cents
+     * @param currency
+     * @throws IllegalArgumentException
+     */
     public Money(int integerValue, int cents, CurrencyValues currency) throws IllegalArgumentException {
-        if (cents >= 100 || cents < 0 || integerValue < 0)
-            throw new IllegalArgumentException("Amount can not be less then zero");
+        Preconditions.checkArgument(!(cents >= 100 || cents < 0 || integerValue < 0), "Amount can not be less then zero");
         Fraction result = new Fraction((integerValue * 100) + cents, 100);
         this.value = result;
         this.currency = Currency.getInstance(String.valueOf(currency));
     }
 
+
+    /**
+     * String type for avoiding double problems
+     * Does not support three decimals currency format
+     * @param fractionalValue
+     * @throws IllegalArgumentException
+     */
     public Money(double fractionalValue) throws IllegalArgumentException {
-        if (fractionalValue < 0)
-            throw new IllegalArgumentException("Amount can not be less then zero");
+        Preconditions.checkArgument(!(fractionalValue < 0), "Amount can not be less then zero");
         int integerValue = (int) fractionalValue;
         int cents = 0;
         if (fractionalValue % 1 != 0) {//j.w.
@@ -90,19 +110,13 @@ public class Money {
         this.currency = currency;
     }
 
-//    public CurrencyValues getCurrency(String currency) {
-//        return CurrencyValues.valueOf(currency);
-//    }
-
     public Money add(Money amount) throws IllegalArgumentException {
-        if (!currency.equals(amount.currency))
-            throw new IllegalArgumentException("Can not add if different currency");
+        Preconditions.checkArgument(currency.equals(amount.currency), "Can not add if different currency", amount);
         return new Money(value.add(amount.value), currency);
     }
 
-    public Money subtract(Money amount){
-        if (!currency.equals(amount.currency))
-            throw new IllegalArgumentException("Can not add if different currency");
+    public Money subtract(Money amount) throws IllegalArgumentException{
+        Preconditions.checkArgument(currency.equals(amount.currency), "Can not substract if different currency", amount);
         return new Money(value.subtract(amount.value), currency);
     }
 
@@ -116,17 +130,6 @@ public class Money {
         double sum = (value.getNumerator() * ratio) / 100;
         Money result = new Money(sum, Currency.getInstance(String.valueOf(currency)));
         return result;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Money money = (Money) o;
-
-        if (!value.equals(money.value)) return false;
-        return currency.equals(money.currency);
     }
 
 //    public boolean equals(Object m2) {
@@ -146,11 +149,19 @@ public class Money {
 //        return false;
 //    }
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Money money = (Money) o;
+        return Objects.equal(value, money.value) &&
+                Objects.equal(currency, money.currency);
+    }
+
     @Override
     public int hashCode() {
-        int result = value.hashCode();
-        result = 31 * result + currency.hashCode();
-        return result;
+        return Objects.hashCode(value, currency);
     }
 
     /**

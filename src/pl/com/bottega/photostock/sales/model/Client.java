@@ -20,7 +20,6 @@ public class Client {
     private boolean active = true;
     private ClientStatus status;
     private String number;
-//    private Set<Company> companies = new HashSet<>();
     private Company company;
 
     private PayingStrategy payingStrategy;
@@ -35,7 +34,6 @@ public class Client {
         this.creditLimit = creditLimit;
         this.company = company;
         this.payingStrategy = payingStrategy;
-//        this.companies.add(company);
     }
 
     public Client(String name, String address, ClientStatus status, Money debt, Money amount, Money creditLimit, Company company) {
@@ -45,7 +43,6 @@ public class Client {
         this.debt = debt;
         this.amount = amount;
         this.creditLimit = creditLimit;
-//        this.companies.add(company);
         this.company = company;
     }
 
@@ -156,26 +153,9 @@ public class Client {
         this.payingStrategy = payingStrategy;
     }
 
-//    public void addCompanies(Company ...company) {
-//        for (Company com : company) {
-//            companies.add(com);
-//        }
-//    }
-
-//    public void removeCompany(Company company) {
-//        for (Company com : companies) {
-//            if (com.equals(company))
-//                companies.remove(com);
-//        }
-//    }
-
     public String getCompany() {
         return company.getName();
     }
-
-//    public Set<Company> getCompanies() {
-//        return companies;
-//    }
 
     @Override
     public boolean equals(Object o) {
@@ -198,30 +178,6 @@ public class Client {
     public int hashCode() {
         return Objects.hashCode(name, address, debt, amount, creditLimit, active, status, number, company, payingStrategy);
     }
-
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//
-//        Client client = (Client) o;
-//
-//        if (name != null ? !name.equals(client.name) : client.name != null) return false;
-//        if (address != null ? !address.equals(client.address) : client.address != null) return false;
-//        if (status != client.status) return false;
-//        return number != null ? number.equals(client.number) : client.number == null;
-//
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        int result = name != null ? name.hashCode() : 0;
-//        result = 31 * result + (address != null ? address.hashCode() : 0);
-//        result = 31 * result + (status != null ? status.hashCode() : 0);
-//        result = 31 * result + (number != null ? number.hashCode() : 0);
-//        return result;
-//    }
 
     //number,name,address,status,debt,amount,creditLimit,currency,company
     public String[] export() {

@@ -211,7 +211,7 @@ public class LightBoxManagementTest {
             lightBoxManagement.share(lightBoxNr, client2.getNumber(), client.getNumber(), ADMIN);
             Assert.fail();
         }
-        catch (IllegalStateException ex) {
+        catch (IllegalArgumentException ex) {
 
         }
 

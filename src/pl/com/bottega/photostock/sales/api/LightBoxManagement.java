@@ -1,6 +1,7 @@
 package pl.com.bottega.photostock.sales.api;
 
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import pl.com.bottega.photostock.sales.infrastructure.repositories.FakeClientRepository;
@@ -60,11 +61,8 @@ public class LightBoxManagement {
         Client owner = clientRepository.load(ownerNr);
         Client client = clientRepository.load(clientNr);
 
-        if (usersWorksSameCompany(owner, client) && ownerIsAdmin(owner, lightBox)) {
+        Preconditions.checkState(usersWorksSameCompany(owner, client) && ownerIsAdmin(owner, lightBox), "You can not add this user");
             lightBox.addUser(client, clientRole);
-        } else {
-            throw new IllegalStateException("You can not add this user");
-        }
         lightBoxRepository.save(lightBox);
     }
 

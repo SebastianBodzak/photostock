@@ -1,5 +1,7 @@
 package pl.com.bottega.photostock.sales.model;
 
+import com.google.common.base.Preconditions;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,9 +14,8 @@ public class Offer {
     private List<Product> items;
     private Money totalCost;
 
-    public Offer(Client owner, List<Product> items) {
-        if (items.size() == 0)
-            throw new IllegalArgumentException("Items can't be empty");
+    public Offer(Client owner, List<Product> items) throws IllegalArgumentException {
+        Preconditions.checkArgument(items.size() != 0, "Items can't be empty", items);
 
         this.owner = owner;
         this.items = items;
@@ -30,19 +31,13 @@ public class Offer {
     }
 
     private Money calculateTotalCost() {
-        Money sum = new Money(0);//items.get(0).calculatePrice().getZero();
-
+        Money sum = new Money(0);
         for(Product p : items)
             sum = sum.add(p.calculatePrice());
-
         return sum;
     }
 
     public Money getTotalCost() {
         return totalCost;
-    }
-
-    public List<Product> getOfferPictures() {
-        return items;
     }
 }

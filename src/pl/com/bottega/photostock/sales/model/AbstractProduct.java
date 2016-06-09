@@ -1,5 +1,6 @@
 package pl.com.bottega.photostock.sales.model;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -149,25 +150,18 @@ public abstract class AbstractProduct implements Product {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         AbstractProduct that = (AbstractProduct) o;
-
-        if (available != that.available) return false;
-        if (number != null ? !number.equals(that.number) : that.number != null) return false;
-        if (price != null ? !price.equals(that.price) : that.price != null) return false;
-        if (author != null ? !author.equals(that.author) : that.author != null) return false;
-        return tags != null ? tags.equals(that.tags) : that.tags == null;
-
+        return available == that.available &&
+                Objects.equal(number, that.number) &&
+                Objects.equal(title, that.title) &&
+                Objects.equal(price, that.price) &&
+                Objects.equal(author, that.author) &&
+                Objects.equal(tags, that.tags);
     }
 
     @Override
     public int hashCode() {
-        int result = number != null ? number.hashCode() : 0;
-        result = 31 * result + (price != null ? price.hashCode() : 0);
-        result = 31 * result + (author != null ? author.hashCode() : 0);
-        result = 31 * result + (available ? 1 : 0);
-        result = 31 * result + (tags != null ? tags.hashCode() : 0);
-        return result;
+        return Objects.hashCode(number, title, price, author, available, tags);
     }
 
     @Override

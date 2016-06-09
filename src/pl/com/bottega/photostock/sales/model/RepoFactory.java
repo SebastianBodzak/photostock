@@ -10,12 +10,6 @@ import pl.com.bottega.photostock.sales.infrastructure.repositories.*;
  */
 public class RepoFactory {
 
-//    private ClientRepository clientRepository = new FileClientRepository();
-////    private ProductRepository productRepository = new FileProductRepository();
-//    private LightBoxRepository lightBoxRepository = new FileLightBoxRepository();
-//    private ReservationRepository reservationRepository = new FileReservationRepository();
-////    private PurchaseRepository purchaseRepository = new FilePurchaseRepository();
-
     private static final String pathToFileClientRepository = "tmp/clients.csv";
     private static final String pathToFileProductRepository = "tmp/products.csv";
     private static final String pathToFilePurchaseRepository = "tmp/purchases.csv";

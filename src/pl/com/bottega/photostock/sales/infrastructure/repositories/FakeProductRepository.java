@@ -56,18 +56,6 @@ public class FakeProductRepository implements ProductRepository {
         fakeDataBase.put(product.getNumber().toLowerCase(), product);
     }
 
-//    @Override
-//    public List<Product> search(String name) {
-//        List<Product> searchingProducts = new LinkedList<>();
-//        Iterator iterator = fakeDataBase.entrySet().iterator();
-//        while (iterator.hasNext()) {
-//            Map.Entry<String, Product> pairs = (Map.Entry)iterator.next();
-//            if (pairs.getValue().getTitle().contains(name.toLowerCase()))
-//                searchingProducts.add(pairs.getValue());
-//        }
-//        return searchingProducts;
-//    }
-
     @Override
     public void remove(String nr) {
         Product product = fakeDataBase.get(nr);
@@ -86,37 +74,17 @@ public class FakeProductRepository implements ProductRepository {
         else{
             result = new LinkedList<>();
 
-            for(Product product : fakeDataBase.values()) {
-                if (! (acceptIsNotAvailable || product.isAvailable()))
-                    continue;
-
-                if (minPrice != null && product.calculatePrice().ge(minPrice)) {
-                    result.add(product);
+            result = Lists.newLinkedList(Iterables.filter(fakeDataBase.values(), new Predicate<Product>() {
+                @Override
+                public boolean apply(Product product) {
+                    return ((acceptIsNotAvailable || product.isAvailable())) &&
+                            ((minPrice != null && product.calculatePrice().ge(minPrice)) || (maxPrice != null && product.calculatePrice().le(maxPrice)) ||
+                            (tags != null && product.isTagedByAnyOf(tags)) || (author != null && product.getAuthor().equals(author)));
                 }
-
-                if (maxPrice != null && product.calculatePrice().le(maxPrice)) {
-                    result.add(product);
-                }
-
-                if (tags != null && product.isTagedByAnyOf(tags)) {
-                    result.add(product);
-                }
-
-                if (author != null && product.getAuthor().equals(author)) {
-                    result.add(product);
-                }
-            }
+            }));
         }
         return result;
     }
-//
-//    public Offer generateOffer() {
-//        List<Product> offerItems = Lists.newLinkedList(Iterables.filter(items, new Predicate<Product>() {
-//            @Override
-//            public boolean apply(Product product) {
-//                return product.isAvailable();
-//            }
-//        }));
 
     @Override
     public void removeAllProducts() {
