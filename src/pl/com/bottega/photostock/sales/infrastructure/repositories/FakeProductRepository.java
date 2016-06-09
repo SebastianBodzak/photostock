@@ -66,7 +66,7 @@ public class FakeProductRepository implements ProductRepository {
     }
 
     @Override
-    public List<Product> find(List<String> tags, String author, Money minPrice, Money maxPrice, boolean acceptIsNotAvailable) { //todo
+    public List<Product> find(List<String> tags, String author, Money minPrice, Money maxPrice, boolean acceptIsNotAvailable) {
         List<Product> result;
 
         if (EmptyFilter(tags, author, minPrice, maxPrice, acceptIsNotAvailable))
