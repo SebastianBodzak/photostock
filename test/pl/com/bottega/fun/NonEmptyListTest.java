@@ -217,8 +217,25 @@ public class NonEmptyListTest {
         //when
         l = l.add(15).add(50).add(100);
         //then
-        FunList<Integer> result = l.remove(1);
+        FunList<Integer> result = l.remove(50);
 
         Assert.assertEquals(2, result.size());
+        Assert.assertTrue(result.contains(15));
+        Assert.assertTrue(result.contains(100));
+        Assert.assertFalse(result.contains(50));
+    }
+
+    @Test
+    public void shouldConcatenatesLists() {
+        //given
+        FunList<Integer> l = FunList.create();
+        FunList<Integer> l2 = FunList.create();
+        //when
+        l = l.add(10).add(20).add(30);
+        l2 = l2.add(40).add(50).add(60);
+        //then
+        FunList<Integer> result = l.concat(l2);
+
+//        Assert.assertEquals(6, result.size());
     }
 }

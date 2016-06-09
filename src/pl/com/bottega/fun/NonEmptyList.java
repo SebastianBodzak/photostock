@@ -30,6 +30,8 @@ public class NonEmptyList<T> implements FunList<T> {
 
     @Override
     public FunList<T> remove(T el) {
+        if (head.equals(el))
+            return tail.remove(el);
         return new NonEmptyList<>(head, tail.remove(el));
     }
 

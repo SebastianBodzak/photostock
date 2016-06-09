@@ -29,7 +29,7 @@ public class EmptyList<T> implements FunList<T> {
 
     @Override
     public FunList<T> concat(FunList<T> other) {
-        return null;
+        return this;
     }
 
     @Override
