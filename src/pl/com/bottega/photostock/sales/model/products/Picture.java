@@ -34,6 +34,10 @@ public class Picture extends AbstractProduct {
         this(title, price, null, isAvailable, tags, null);
     }
 
+    public Picture(String number, String title) {
+        super(number, title);
+    }
+
     public Resolution getResolution() {
         return resolution;
     }

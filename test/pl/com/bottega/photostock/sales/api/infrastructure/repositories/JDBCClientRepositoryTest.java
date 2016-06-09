@@ -26,6 +26,8 @@ public class JDBCClientRepositoryTest {
     public void setUp() throws SQLException {
         //given
         Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:photostock", "SA", "");
+        dropTables(c);
+        createStatusesTable(c);
         createClientsTable(c);
         insertTestClient(c);
         c.close();
@@ -84,8 +86,12 @@ public class JDBCClientRepositoryTest {
         assertEquals(false, saved.isActive());
     }
 
-    private void createClientsTable(Connection c) throws SQLException {
+    private void dropTables(Connection c) throws SQLException {
+        c.createStatement().executeUpdate("DROP TABLE Statuses IF EXISTS");
         c.createStatement().executeUpdate("DROP TABLE Clients IF EXISTS");
+    }
+
+    private void createClientsTable(Connection c) throws SQLException {
         c.createStatement().executeUpdate("CREATE TABLE Clients (\n" +
                 "  id IDENTITY PRIMARY KEY,\n" +
                 "  number VARCHAR(36) NOT NULL,\n" +
@@ -99,6 +105,18 @@ public class JDBCClientRepositoryTest {
                 "  statusId INTEGER DEFAULT 0 NOT NULL\n" +
 //                "  statusId INTEGER FOREIGN KEY REFERENCES Statuses(id)\n" +
                 ");");
+    }
+
+    private void createStatusesTable(Connection c) throws SQLException {
+        c.createStatement().executeUpdate("CREATE TABLE Statuses (\n" +
+                "  id IDENTITY PRIMARY KEY,\n" +
+                "  name VARCHAR(40) NOT NULL\n" +
+                ");");
+        c.createStatement().executeUpdate("INSERT INTO Statuses (name) VALUES ('standard');\n");
+        c.createStatement().executeUpdate("INSERT INTO Statuses (name) VALUES ('vip');\n");
+        c.createStatement().executeUpdate("INSERT INTO Statuses (name) VALUES ('silver');\n");
+        c.createStatement().executeUpdate("INSERT INTO Statuses (name) VALUES ('gold');\n");
+        c.createStatement().executeUpdate("INSERT INTO Statuses (name) VALUES ('platinum');\n");
     }
 
     private void insertTestClient(Connection c) throws SQLException {

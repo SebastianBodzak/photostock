@@ -34,6 +34,13 @@ public class Purchase {
         this.date = new Date();
     }
 
+    public Purchase(String purchaseNumber, Client owner, List<Product> items) {
+
+        number = purchaseNumber;
+        this.owner = owner;
+        this.items = items;
+    }
+
     public String getNumber() {
         return number;
     }

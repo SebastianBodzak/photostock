@@ -52,6 +52,16 @@ public abstract class AbstractProduct implements Product {
         this.tags = tags;
     }
 
+    /**
+     * Constructor only for tests
+     * @param number
+     * @param title
+     */
+    public AbstractProduct(String number, String title) {
+        this.number = number;
+        this.title = title;
+    }
+
     @Override
     public boolean isAvailable(){
         return available;

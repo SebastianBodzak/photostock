@@ -28,24 +28,22 @@ public class JDBCClientRepository implements ClientRepository {
     @Override
     public Client load(String number) throws DataAccessException {
         try (Connection c = getConnection()) {
-            PreparedStatement preparedStatement = c.prepareStatement("SELECT number, name, address, amountCents, debtCents, creditLimitCents, amountCurrency, active, statusId " +
-                    "FROM Clients WHERE number = ?");
+            PreparedStatement preparedStatement = c.prepareStatement("SELECT number, clients.name, address, amountCents, debtCents, creditLimitCents, amountCurrency, active, statuses.name\n" +
+                    "FROM Clients\n" +
+                    "  JOIN Statuses ON Clients.statusId = Statuses.id\n" +
+                    "WHERE number = ?");
             preparedStatement.setString(1, number);
             ResultSet rs = preparedStatement.executeQuery();
             if (!rs.next())
                 return null;
             Money.CurrencyValues currency = Money.CurrencyValues.valueOf(rs.getString("amountCurrency"));
-            ClientStatus clientsStatus = parseClientStatus(rs.getInt("statusId"));
+            ClientStatus clientsStatus = ClientStatus.valueOf(rs.getString("statuses.name").toUpperCase());
             return new Client(rs.getString("number"), rs.getString("name"), rs.getString("address"), clientsStatus, new Money(rs.getInt("debtCents")/100, currency), new Money(rs.getInt("amountCents")/100, currency),
                     new Money(rs.getInt("creditLimitCents")/100, currency), rs.getBoolean("active"));
 
         } catch (Exception ex) {
             throw new DataAccessException(ex);
         }
-    }
-
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url, login, password);
     }
 
     private ClientStatus parseClientStatus(int statusId) throws IllegalArgumentException {
@@ -95,6 +93,10 @@ public class JDBCClientRepository implements ClientRepository {
             throw new DataAccessException(ex);
         }
 
+    }
+
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(url, login, password);
     }
 
     private boolean checkIfClientExists(Client client) {

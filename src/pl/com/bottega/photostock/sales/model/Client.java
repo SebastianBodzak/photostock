@@ -70,6 +70,16 @@ public class Client {
         this.active = active;
     }
 
+    /**
+     * Constructor only for quicker tests
+     * @param number
+     * @param name
+     */
+    public Client(String number, String name) {
+        this.number = number;
+        this.name = name;
+    }
+
     public boolean canAfford(Money price) {
             return payingStrategy.canAfford(price, this);
     }
