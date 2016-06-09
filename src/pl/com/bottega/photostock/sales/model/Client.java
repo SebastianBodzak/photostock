@@ -78,7 +78,7 @@ public class Client {
     }
 
     public boolean canAfford(Money price) {
-            return payingStrategy.canAfford(price, this);
+        return payingStrategy.canAfford(price, this);
     }
 
     public void charge(Money price, String cause) {
