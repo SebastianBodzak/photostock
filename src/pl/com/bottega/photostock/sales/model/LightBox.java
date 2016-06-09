@@ -54,12 +54,9 @@ public class LightBox {
     }
 
     private boolean validateUser(Client client, ClientRole clientRole) {
-        if (client != null) {
+        Preconditions.checkState(client != null, "This user doesnt exist!", client);
             Preconditions.checkArgument(hasNotBeenAddEarlier(client), "This user has access to your lightBox already!", client);
                 return true;
-        } else {
-            throw new IllegalStateException("This user doesnt exist!");
-        }
     }
 
     private boolean hasNotBeenAddEarlier(Client client) {
