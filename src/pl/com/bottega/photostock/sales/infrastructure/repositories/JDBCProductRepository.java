@@ -59,27 +59,34 @@ public class JDBCProductRepository implements ProductRepository {
     @Override
     public void save(Product product) throws DataAccessException {
         try (Connection c = getConnection()) {
-            boolean ifProductExists = ifProductExist(product);
-            String query = ifProductExists ?
-                "UPDATE PRODUCTS SET number = ?, name = ?, available = ?, priceCents = ?, priceCurrency = ?, type = '' WHERE number = ?"
-                : "INSERT INTO Products (number, name, available, priceCents, priceCurrency, type) VALUES (?, ?, ?, ?, ?, '');";
+            try {
+                c.setAutoCommit(false);
+                c.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+                boolean ifProductExists = ifProductExist(product);
+                String query = ifProductExists ?
+                        "UPDATE PRODUCTS SET number = ?, name = ?, available = ?, priceCents = ?, priceCurrency = ?, type = '' WHERE number = ?"
+                        : "INSERT INTO Products (number, name, available, priceCents, priceCurrency, type) VALUES (?, ?, ?, ?, ?, '');";
 
+                PreparedStatement ps = c.prepareStatement(query);
+                if (ifProductExists)
+                    ps.setString(6, product.getNumber());
 
-            PreparedStatement ps = c.prepareStatement(query);
-            if (ifProductExists)
-                ps.setString(6, product.getNumber());
-
-            if (product.getNumber() == null)
-                product.setNumber(UUID.randomUUID().toString());
-            ps.setString(1, product.getNumber());
-            ps.setString(2, product.getTitle());
-            ps.setBoolean(3, product.isAvailable());
-            ps.setInt(4, product.getPrice().cents());
-            String currency = String.valueOf(product.getPrice().getCurrency());
-            ps.setString(5, currency);
-            ps.executeUpdate();
-            if (!(product.getTags() == null))
-                insertTags(c, product);
+                if (product.getNumber() == null)
+                    product.setNumber(UUID.randomUUID().toString());
+                ps.setString(1, product.getNumber());
+                ps.setString(2, product.getTitle());
+                ps.setBoolean(3, product.isAvailable());
+                ps.setInt(4, product.getPrice().cents());
+                String currency = String.valueOf(product.getPrice().getCurrency());
+                ps.setString(5, currency);
+                ps.executeUpdate();
+                if (!(product.getTags() == null))
+                    insertTags(c, product);
+                c.commit();
+            } catch (Exception ex) {
+                c.rollback();
+                throw ex;
+            }
         } catch (Exception ex) {
             throw new DataAccessException(ex);
         }
